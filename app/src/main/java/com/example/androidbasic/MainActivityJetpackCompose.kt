@@ -3,39 +3,42 @@ package com.example.androidbasic
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.androidbasic.ui.theme.AndroidBasicTheme
+import kotlinx.coroutines.launch
 
 class MainActivityJetpackCompose : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +46,8 @@ class MainActivityJetpackCompose : ComponentActivity() {
         setContent {
             AndroidBasicTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                 ) { innerPadding ->
                     Greeting("Android", Modifier.padding(innerPadding))
                 }
@@ -52,71 +56,98 @@ class MainActivityJetpackCompose : ComponentActivity() {
     }
 }
 
+data class TabItem(
+    val title: String,
+    val unselectedIcon: ImageVector,
+    val selectedIcon: ImageVector,
+)
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    var count by rememberSaveable {
-        mutableIntStateOf(0)
-    }
-    var nameText by remember {
-        mutableStateOf("")
-    }
-    var listName by remember {
-        mutableStateOf(listOf<String>())
-    }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-//        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Hello $name!",
-            color = Color.Green,
+    val tabList = listOf(
+        TabItem(
+            title = "Home",
+            unselectedIcon = Icons.Outlined.Home,
+            selectedIcon = Icons.Filled.Home,
+        ),
+        TabItem(
+            title = "Browse",
+            unselectedIcon = Icons.Outlined.ShoppingCart,
+            selectedIcon = Icons.Filled.ShoppingCart
+        ),
+        TabItem(
+            title = "Account",
+            unselectedIcon = Icons.Outlined.AccountCircle,
+            selectedIcon = Icons.Filled.AccountCircle
+        )
+    )
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState { tabList.size }
+    val coroutineScope = rememberCoroutineScope()
 
-            )
-        Text(text = "Welcome to Jetpack Compose")
-        Button(onClick = {
-            count++
-        }) {
-            Text(
-                text = "Count: $count",
-                modifier = Modifier.padding(10.dp),
-                fontSize = 20.sp
-            )
-            Icon(
-                imageVector = Icons.Filled.AccountBox,
-                contentDescription = "Account Box",
-            )
+//    LaunchedEffect(selectedIndex) {
+//        pagerState.animateScrollToPage(selectedIndex)
+//    }
+//
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        if (!pagerState.isScrollInProgress) {
+            selectedIndex = pagerState.currentPage
         }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp, bottom = 16.dp)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        TabRow(
+            selectedTabIndex = selectedIndex,
+            contentColor = Color.Green,
+            containerColor = Color.Black,
+            indicator = { tabPositions ->
+                if (selectedIndex < tabPositions.size) {
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(
+                            tabPositions[selectedIndex]
+                        ),
+                        color = Color.Green
+                    )
+                }
+            },
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                OutlinedTextField(
-                    value = nameText,
-                    onValueChange = { nameText = it },
-                    maxLines = 1,
-                    modifier = Modifier.weight(3f)
-                )
-                Button(onClick = {
-                    if (nameText.isNotEmpty()) {
-                        listName = listName + nameText
-                        nameText = ""
+            tabList.forEachIndexed { index, item ->
+                Tab(
+                    modifier = Modifier.background(Color.Black),
+                    selected = selectedIndex == index,
+//                    onClick = { selectedIndex = index },
+                    onClick = {
+                        selectedIndex = index
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
+                    text = { Text(text = item.title) },
+                    icon = {
+                        Icon(
+                            imageVector = if (selectedIndex == index) item.selectedIcon else item.unselectedIcon,
+                            contentDescription = null
+                        )
                     }
-                }, modifier = Modifier.weight(1f)) {
-                    Text(text = "Save")
-                }
+                )
             }
-            LazyColumn {
-                items(listName) {
-                    Text(text = it)
-                }
+        }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) { index ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Tab ${tabList[index].title}", color = Color.Green)
             }
         }
     }
