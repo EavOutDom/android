@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
@@ -98,7 +99,7 @@ class MainActivityJetpackCompose : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                 ) { innerPadding ->
-                    AnimatedContentCompose(modifier = Modifier.padding(innerPadding))
+                    CrossFadeCompose(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -113,14 +114,20 @@ fun AnimationPreview() {
             modifier = Modifier
                 .fillMaxSize()
         ) { innerPadding ->
-            AnimatedContentCompose(modifier = Modifier.padding(innerPadding))
+            CrossFadeCompose(modifier = Modifier.padding(innerPadding))
         }
     }
 }
 
 @Composable
 fun CrossFadeCompose(modifier: Modifier = Modifier) {
-
+    var pick by remember { mutableStateOf("A") }
+    Crossfade(targetState = pick, label = "page", animationSpec = tween(2000)) { screen ->
+        when (screen) {
+            "A" -> Button(onClick = { pick = "B" }) { Text("Page A") }
+            "B" -> Button(onClick = { pick = "A" }) { Text("Page B") }
+        }
+    }
 }
 
 @Composable
