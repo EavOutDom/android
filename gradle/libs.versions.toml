@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+animation = "1.8.0-alpha07"
 coilCompose = "3.0.4"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
@@ -14,6 +15,7 @@ navigationCompose = "2.8.5"
 workRuntimeKtx = "2.10.0"
 
 [libraries]
+androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }

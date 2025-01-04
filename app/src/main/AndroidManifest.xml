@@ -18,7 +18,7 @@
         android:theme="@style/Theme.AndroidBasic"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivityNavigation"
+            android:name=".MainActivityJetpackCompose"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AndroidBasic">
