@@ -97,6 +97,14 @@ class MainActivityJetpackCompose : ComponentActivity() {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AnimationPreview() {
+    AndroidBasicTheme {
+        Animation()
+    }
+}
+
 @Composable
 fun Animation(modifier: Modifier = Modifier) {
     val (checked, onCheckedChange) = remember { mutableStateOf(true) }
