@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -15,8 +17,13 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +48,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,8 +98,7 @@ class MainActivityJetpackCompose : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                 ) { innerPadding ->
-//                    Greeting("Android", Modifier.padding(innerPadding))
-                    Animation(Modifier.padding(innerPadding))
+                    AnimatedContentCompose(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -101,7 +109,51 @@ class MainActivityJetpackCompose : ComponentActivity() {
 @Composable
 fun AnimationPreview() {
     AndroidBasicTheme {
-        Animation()
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+        ) { innerPadding ->
+            AnimatedContentCompose(modifier = Modifier.padding(innerPadding))
+        }
+    }
+}
+
+@Composable
+fun CrossFadeCompose(modifier: Modifier = Modifier) {
+
+}
+
+@Composable
+fun AnimatedContentCompose(modifier: Modifier = Modifier) {
+    var count by remember { mutableIntStateOf(0) }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AnimatedContent(
+            label = "count",
+            targetState = count,
+            transitionSpec = {
+                if (targetState > initialState) {
+                    slideInHorizontally { it } + scaleIn() + fadeIn() togetherWith slideOutHorizontally { -it } + scaleOut() + fadeOut()
+                } else {
+                    slideInHorizontally { -it } + scaleIn() + fadeIn() togetherWith slideOutHorizontally { it } + scaleOut() + fadeOut()
+                }.using(SizeTransform(clip = false))
+            }
+        ) { targetCount ->
+            Text(text = "$targetCount", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        Row(horizontalArrangement = Arrangement.Center) {
+            Button(onClick = { count-- }) {
+                Text(text = "Minus")
+            }
+            Spacer(Modifier.size(60.dp))
+            Button(onClick = { count++ }) { Text("Plus ") }
+        }
+
     }
 }
 
