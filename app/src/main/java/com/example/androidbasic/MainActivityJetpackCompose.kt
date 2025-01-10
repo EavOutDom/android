@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -24,6 +25,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,6 +76,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,9 +111,34 @@ fun AnimationPreview() {
                 .fillMaxSize()
         ) { innerPadding ->
 //            CrossFadeCompose(modifier = Modifier.padding(innerPadding))
-            InfiniteTransitionCompose(modifier = Modifier.padding(innerPadding))
+//            InfiniteTransitionCompose(modifier = Modifier.padding(innerPadding))
+            ValueAnimation(modifier = Modifier.padding(innerPadding))
         }
     }
+}
+
+@Composable
+fun ValueAnimation(modifier: Modifier = Modifier) {
+    var click by remember { mutableStateOf(false) }
+    val roundness by animateDpAsState(
+        targetValue = if (click) 25.dp else 0.dp,
+        label = "roundness",
+//        animationSpec = spring(
+//            dampingRatio = Spring.DampingRatioMediumBouncy,
+//            stiffness = Spring.StiffnessMedium
+//        )
+    )
+
+    Box(
+        modifier = modifier
+            .padding(15.dp)
+            .size(100.dp)
+            .background(Color.Black, RoundedCornerShape(roundness))
+            .clip(RoundedCornerShape(roundness))
+            .clickable {
+                click = !click
+            }
+    )
 }
 
 @Composable
